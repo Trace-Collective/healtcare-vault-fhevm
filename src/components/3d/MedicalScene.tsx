@@ -186,7 +186,7 @@ const Scene = () => {
 // Exported Component
 export const MedicalScene = () => {
   return (
-    <div className="w-full h-[600px] md:h-[700px] lg:h-[800px]">
+    <div className="w-full h-[400px] md:h-[500px] lg:h-[600px]">
       <Canvas>
         <Scene />
       </Canvas>
