@@ -8,16 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { useCreateRecord } from "@/hooks/useRecords";
 import { encryptData } from "@/services/fhe";
 import { t } from "@/lib/i18n";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
 
 const NewRecord = () => {
   const navigate = useNavigate();
-  const { address } = useAuthStore();
+  const { address, isConnected } = useAccount();
   const { language } = useUIStore();
   const createRecord = useCreateRecord();
 
@@ -34,7 +34,7 @@ const NewRecord = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!address) {
+    if (!isConnected || !address) {
       toast.error(language === 'id' ? 'Hubungkan wallet terlebih dahulu' : 'Please connect wallet first');
       return;
     }

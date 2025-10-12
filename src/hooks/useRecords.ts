@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
+import { toast } from 'sonner';
 import { createRecord, listRecords, getRecord, listAllRecords } from '@/services/contract';
 import { HealthRecord } from '@/types/records';
-import { toast } from 'sonner';
 
-export function useMyRecords(address: string | null) {
+export function useMyRecords(addressOverride?: string | null) {
+  const { address } = useAccount();
+  const ownerAddress = addressOverride ?? address ?? null;
+
   return useQuery({
-    queryKey: ['records', address],
-    queryFn: () => listRecords(address),
-    enabled: !!address
+    queryKey: ['records', ownerAddress],
+    queryFn: () => listRecords(ownerAddress!),
+    enabled: !!ownerAddress
   });
 }
 
@@ -31,8 +35,11 @@ export function useCreateRecord() {
   
   return useMutation({
     mutationFn: (rec: HealthRecord) => createRecord(rec),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['records'] });
+      if (variables.owner) {
+        queryClient.invalidateQueries({ queryKey: ['records', variables.owner] });
+      }
       toast.success('Record created successfully');
     },
     onError: (error) => {

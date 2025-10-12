@@ -3,17 +3,17 @@ import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 import { useMyRecords } from "@/hooks/useRecords";
 import { t } from "@/lib/i18n";
 import { Loading } from "@/components/common/Loading";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RecordCard } from "@/components/records/RecordCard";
+import { useAccount } from "wagmi";
 
 const Records = () => {
   const navigate = useNavigate();
-  const { address } = useAuthStore();
+  const { address, isConnected } = useAccount();
   const { language } = useUIStore();
   const { data: records, isLoading } = useMyRecords(address);
 
@@ -43,7 +43,17 @@ const Records = () => {
             </div>
 
             {/* Content */}
-            {isLoading ? (
+            {!isConnected ? (
+              <EmptyState
+                icon={FileText}
+                title={language === 'id' ? 'Wallet belum terhubung' : 'Wallet not connected'}
+                description={
+                  language === 'id'
+                    ? 'Hubungkan wallet Anda untuk melihat rekam medis terenkripsi'
+                    : 'Connect your wallet to view encrypted health records'
+                }
+              />
+            ) : isLoading ? (
               <Loading text={t('common.loading', language)} />
             ) : records && records.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
