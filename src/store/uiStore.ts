@@ -14,7 +14,7 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       theme: 'light',
-      language: 'id',
+      language: 'en',
       sidebarOpen: true,
       toggleTheme: () =>
         set((state) => {

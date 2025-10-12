@@ -165,7 +165,7 @@ export const translations = {
 
 export type Language = 'id' | 'en';
 
-export function t(key: string, lang: Language = 'id'): string {
+export function t(key: string, lang: Language = 'en'): string {
   const keys = key.split('.');
   let value: any = translations[lang];
   
