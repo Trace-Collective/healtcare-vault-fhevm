@@ -1,13 +1,11 @@
 import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUIStore } from "@/store/uiStore";
-import { useAuthStore } from "@/store/authStore";
 import { WalletButton } from "./WalletButton";
 import { t } from "@/lib/i18n";
+import { useUIStore } from "@/store/uiStore";
 
 export const Navbar = () => {
   const { theme, toggleTheme, toggleSidebar, language } = useUIStore();
-  const { address } = useAuthStore();
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
