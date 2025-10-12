@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { Shield } from "lucide-react";
+import { Shield, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUIStore } from "@/store/uiStore";
 import { motion } from "framer-motion";
 
 export const LandingHeader = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useUIStore();
 
   return (
     <motion.header 
@@ -22,14 +24,29 @@ export const LandingHeader = () => {
           <span className="text-xl font-bold">Healthcare Vault</span>
         </div>
 
-        {/* Go To App Button */}
-        <Button 
-          onClick={() => navigate('/dashboard')}
-          size="lg"
-          className="gap-2"
-        >
-          Go To App
-        </Button>
+        {/* Theme Toggle & Go To App Button */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleTheme}
+            className="h-10 w-10"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+          
+          <Button 
+            onClick={() => navigate('/dashboard')}
+            size="lg"
+            className="gap-2"
+          >
+            Go To App
+          </Button>
+        </div>
       </div>
     </motion.header>
   );
