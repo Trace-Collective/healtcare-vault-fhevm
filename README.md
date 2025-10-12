@@ -1,73 +1,207 @@
-# Welcome to your Lovable project
+# 🏥 Confidential Health Record dApp
 
-## Project info
+Aplikasi web untuk manajemen rekam medis terenkripsi menggunakan teknologi Fully Homomorphic Encryption (FHE) di blockchain.
 
-**URL**: https://lovable.dev/projects/b2eb4381-ec49-4716-9ccd-894a1d371288
+> ⚠️ **Demo Application**: Aplikasi ini menggunakan enkripsi placeholder untuk tujuan demonstrasi. Implementasi produksi memerlukan Zama FHEVM SDK untuk enkripsi FHE sesungguhnya.
 
-## How can I edit this code?
+## ✨ Fitur Utama
 
-There are several ways of editing your application.
+- 🔐 **Enkripsi End-to-End**: Data kesehatan terenkripsi sebelum disimpan
+- 👥 **Kontrol Akses**: Pasien dapat memberikan/mencabut akses dokter
+- 🌐 **Bilingual**: Mendukung Bahasa Indonesia dan English
+- 🌓 **Dark/Light Mode**: Tema yang dapat disesuaikan
+- 💳 **Wallet Integration**: Koneksi wallet untuk autentikasi (demo mode)
+- 📱 **Responsive Design**: Optimal di desktop dan mobile
 
-**Use Lovable**
+## 🛠 Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b2eb4381-ec49-4716-9ccd-894a1d371288) and start prompting.
+- **Frontend Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: TailwindCSS dengan design system kustom
+- **UI Components**: shadcn/ui
+- **State Management**: Zustand
+- **Data Fetching**: TanStack Query (React Query)
+- **Routing**: React Router v6
+- **Form Handling**: React Hook Form + Zod (siap digunakan)
+- **i18n**: Custom translation system
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📦 Instalasi
 
-**Use your preferred IDE**
+```bash
+# Install dependencies
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Jalankan development server
 npm run dev
+
+# Build untuk production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## 🚀 Cara Menggunakan
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Hubungkan Wallet** (Demo Mode)
+   - Klik tombol "Connect Wallet" di navbar
+   - Wallet demo akan otomatis terhubung
 
-**Use GitHub Codespaces**
+2. **Buat Rekam Medis**
+   - Navigasi ke halaman "Rekam Medis"
+   - Klik "Rekam Medis Baru"
+   - Isi form dengan data kesehatan
+   - Data akan dienkripsi (placeholder) sebelum disimpan
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. **Kelola Akses**
+   - Navigasi ke halaman "Kelola Akses"
+   - Berikan akses ke alamat dokter
+   - Cabut akses kapan saja
 
-## What technologies are used for this project?
+4. **Pengaturan**
+   - Ganti bahasa (ID/EN)
+   - Toggle dark/light mode
 
-This project is built with:
+## 📁 Struktur Folder
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+├── components/
+│   ├── layout/          # Navbar, Sidebar, WalletButton
+│   ├── records/         # RecordCard, RecordForm
+│   ├── common/          # EmptyState, Loading
+│   └── ui/              # shadcn/ui components
+├── pages/               # Page components
+│   ├── Landing.tsx      # Landing page
+│   ├── Dashboard.tsx    # Dashboard
+│   ├── Records.tsx      # Records list
+│   ├── NewRecord.tsx    # Create record form
+│   ├── RecordDetail.tsx # Record detail view
+│   ├── Access.tsx       # Access management
+│   └── Settings.tsx     # Settings page
+├── hooks/               # Custom hooks
+│   ├── useRecords.ts    # Records queries/mutations
+│   └── useAccess.ts     # Access control hooks
+├── services/            # Business logic
+│   ├── fhe.ts          # FHE encryption/decryption (placeholder)
+│   └── contract.ts     # Contract calls (mock)
+├── store/              # Zustand stores
+│   ├── authStore.ts    # Auth state
+│   └── uiStore.ts      # UI preferences
+├── types/              # TypeScript types
+│   ├── records.ts      # Health record types
+│   └── access.ts       # Access control types
+└── lib/                # Utilities
+    ├── i18n.ts         # Internationalization
+    └── utils.ts        # Helper functions
+```
 
-## How can I deploy this project?
+## 🔐 Tentang FHE (Fully Homomorphic Encryption)
 
-Simply open [Lovable](https://lovable.dev/projects/b2eb4381-ec49-4716-9ccd-894a1d371288) and click on Share -> Publish.
+FHE memungkinkan komputasi pada data terenkripsi tanpa perlu mendekripsinya terlebih dahulu. Ini berarti:
 
-## Can I connect a custom domain to my Lovable project?
+- Data kesehatan tetap **terenkripsi** di blockchain
+- Hanya pihak yang diberi akses dapat **mendekripsi**
+- Komputasi dapat dilakukan **tanpa mengungkap data asli**
 
-Yes, you can!
+### Implementasi Saat Ini
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- ✅ Arsitektur siap untuk FHE
+- ⚠️ Menggunakan base64 encoding sebagai placeholder
+- 🔄 Siap untuk integrasi dengan Zama FHEVM SDK
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Migrasi ke FHE Asli
+
+Untuk menghubungkan ke FHEVM sesungguhnya:
+
+1. **Install Zama FHEVM SDK**
+   ```bash
+   npm install fhevmjs
+   ```
+
+2. **Update `src/services/fhe.ts`**
+   - Ganti fungsi `encryptData()` dengan FHE encryption
+   - Ganti fungsi `decryptData()` dengan FHE decryption
+
+3. **Update `src/services/contract.ts`**
+   - Ganti mock contract calls dengan actual contract calls
+   - Gunakan wagmi/viem untuk blockchain interaction
+
+4. **Setup Smart Contract**
+   - Deploy FHEVM smart contract
+   - Update contract address di environment variables
+
+## 🔧 Environment Variables
+
+Buat file `.env` (opsional untuk demo):
+
+```env
+VITE_APP_NAME=Confidential Health Record dApp
+VITE_DEFAULT_CHAIN_ID=11155111
+VITE_RPC_URL=your_rpc_url
+VITE_CONTRACT_ADDRESS=your_contract_address
+```
+
+## 🎨 Kustomisasi Design System
+
+Design system didefinisikan di `src/index.css` dan `tailwind.config.ts`:
+
+```css
+/* index.css */
+:root {
+  --primary: 200 95% 45%;        /* Medical blue */
+  --secondary: 150 60% 50%;      /* Healthy green */
+  --gradient-primary: linear-gradient(...);
+  /* ... */
+}
+```
+
+## 📝 Batasan Demo
+
+- ❌ Belum menggunakan FHE encryption sesungguhnya
+- ❌ Belum ada smart contract deployment
+- ❌ Wallet connection masih mock/placeholder
+- ❌ Data hanya disimpan di memory (tidak persisten)
+
+## 🚧 Roadmap
+
+- [ ] Integrasi Zama FHEVM SDK
+- [ ] Deploy smart contract ke testnet
+- [ ] Integrasi wallet sesungguhnya (MetaMask, WalletConnect)
+- [ ] IPFS untuk storage tambahan
+- [ ] Role-based access control (Patient/Doctor/Admin)
+- [ ] Export/Import encrypted keys
+- [ ] Audit trail yang lebih lengkap
+
+## 📚 Dokumentasi Tambahan
+
+- [Zama FHEVM Documentation](https://docs.zama.ai/)
+- [React Query Documentation](https://tanstack.com/query/latest)
+- [shadcn/ui Documentation](https://ui.shadcn.com/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
+
+## 🤝 Kontribusi
+
+Untuk kontribusi atau improvement:
+
+1. Fork repository
+2. Buat feature branch
+3. Commit perubahan
+4. Push ke branch
+5. Buat Pull Request
+
+## 📄 License
+
+MIT License - Lihat file `LICENSE` untuk detail
+
+## 💡 Tips Pengembangan
+
+1. **State Management**: Gunakan Zustand untuk global state, React Query untuk server state
+2. **Styling**: Gunakan design system tokens, hindari inline styles
+3. **Components**: Buat komponen kecil dan reusable
+4. **Types**: Selalu define TypeScript types untuk data structures
+5. **i18n**: Tambahkan translations di `src/lib/i18n.ts`
+
+---
+
+Dibuat dengan ❤️ menggunakan React + TypeScript + TailwindCSS
