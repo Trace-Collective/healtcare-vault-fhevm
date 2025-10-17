@@ -1,0 +1,56 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        { "internalType": "string", "name": "cid", "type": "string" },
+        { "internalType": "bytes", "name": "allergyInput", "type": "bytes" },
+        { "internalType": "bytes", "name": "allergyProof", "type": "bytes" },
+        { "internalType": "bytes", "name": "riskInput", "type": "bytes" },
+        { "internalType": "bytes", "name": "riskProof", "type": "bytes" }
+      ],
+      "name": "createRecordFromExternal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "doctor", "type": "address" },
+        { "internalType": "bool", "name": "isGranted", "type": "bool" }
+      ],
+      "name": "grantAccess",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "id", "type": "uint256" },
+        { "internalType": "bytes", "name": "delta", "type": "bytes" }
+      ],
+      "name": "addRiskDelta",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "id", "type": "uint256" }
+      ],
+      "name": "requestRiskDecrypt",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "recordId", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "requester", "type": "address" },
+        { "indexed": false, "internalType": "uint256", "name": "risk", "type": "uint256" }
+      ],
+      "name": "RiskDecrypted",
+      "type": "event"
+    }
+  ]
+}
