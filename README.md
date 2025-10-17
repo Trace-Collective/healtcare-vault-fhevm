@@ -2,8 +2,6 @@
 
 Aplikasi web untuk manajemen rekam medis terenkripsi menggunakan teknologi Fully Homomorphic Encryption (FHE) di blockchain.
 
-> ⚠️ **Demo Application**: Aplikasi ini menggunakan enkripsi placeholder untuk tujuan demonstrasi. Implementasi produksi memerlukan Zama FHEVM SDK untuk enkripsi FHE sesungguhnya.
-
 ## ✨ Fitur Utama
 
 - 🔐 **Enkripsi End-to-End**: Data kesehatan terenkripsi sebelum disimpan
@@ -108,28 +106,8 @@ FHE memungkinkan komputasi pada data terenkripsi tanpa perlu mendekripsinya terl
 
 - ✅ Arsitektur siap untuk FHE
 - ⚠️ Menggunakan base64 encoding sebagai placeholder
-- 🔄 Siap untuk integrasi dengan Zama FHEVM SDK
+- 🔄 Integrasi dengan Zama FHEVM SDK
 
-### Migrasi ke FHE Asli
-
-Untuk menghubungkan ke FHEVM sesungguhnya:
-
-1. **Install Zama FHEVM SDK**
-   ```bash
-   npm install fhevmjs
-   ```
-
-2. **Update `src/services/fhe.ts`**
-   - Ganti fungsi `encryptData()` dengan FHE encryption
-   - Ganti fungsi `decryptData()` dengan FHE decryption
-
-3. **Update `src/services/contract.ts`**
-   - Ganti mock contract calls dengan actual contract calls
-   - Gunakan wagmi/viem untuk blockchain interaction
-
-4. **Setup Smart Contract**
-   - Deploy FHEVM smart contract
-   - Update contract address di environment variables
 
 ## 🔧 Environment Variables
 
@@ -156,22 +134,7 @@ Design system didefinisikan di `src/index.css` dan `tailwind.config.ts`:
 }
 ```
 
-## 📝 Batasan Demo
 
-- ❌ Belum menggunakan FHE encryption sesungguhnya
-- ❌ Belum ada smart contract deployment
-- ❌ Wallet connection masih mock/placeholder
-- ❌ Data hanya disimpan di memory (tidak persisten)
-
-## 🚧 Roadmap
-
-- [ ] Integrasi Zama FHEVM SDK
-- [ ] Deploy smart contract ke testnet
-- [ ] Integrasi wallet sesungguhnya (MetaMask, WalletConnect)
-- [ ] IPFS untuk storage tambahan
-- [ ] Role-based access control (Patient/Doctor/Admin)
-- [ ] Export/Import encrypted keys
-- [ ] Audit trail yang lebih lengkap
 
 ## 📚 Dokumentasi Tambahan
 
@@ -203,5 +166,3 @@ MIT License - Lihat file `LICENSE` untuk detail
 5. **i18n**: Tambahkan translations di `src/lib/i18n.ts`
 
 ---
-
-Dibuat dengan ❤️ menggunakan React + TypeScript + TailwindCSS
