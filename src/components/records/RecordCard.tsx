@@ -47,6 +47,11 @@ export const RecordCard = ({ record }: RecordCardProps) => {
       
       <CardContent>
         <div className="space-y-2">
+          {record.contractId != null && (
+            <p className="text-xs text-muted-foreground">
+              {language === 'id' ? 'ID Kontrak:' : 'Contract ID:'} #{record.contractId}
+            </p>
+          )}
           <div className="flex items-center gap-2 text-sm">
             <Shield className="h-4 w-4 text-primary" />
             <span className="font-medium">{t('records.encrypted', language)}</span>

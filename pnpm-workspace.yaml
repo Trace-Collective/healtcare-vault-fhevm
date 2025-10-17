@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@swc/core'
+  - bigint-buffer
+  - bufferutil
+  - esbuild
+  - keccak
+  - utf-8-validate

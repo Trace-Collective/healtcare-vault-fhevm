@@ -35,6 +35,21 @@ const NewRecord = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const MAX_U16 = 65535;
+  const MIN_U16 = 0;
+
+  const randomU16 = () => Math.floor(Math.random() * (MAX_U16 + 1));
+
+  const handleRandomize = (field: "allergyCode" | "riskScore") => {
+    const value = randomU16().toString();
+    setFormData(prev => ({ ...prev, [field]: value }));
+    toast.info(
+      language === "id"
+        ? `Nilai ${field === "allergyCode" ? "kode alergi" : "skor risiko"} diacak menjadi ${value}`
+        : `${field === "allergyCode" ? "Allergy code" : "Risk score"} randomized to ${value}`
+    );
+  };
+
   const handleOnChainSubmit = async () => {
     if (!isConnected || !address) {
       toast.error(language === 'id' ? 'Hubungkan wallet terlebih dahulu' : 'Please connect wallet first');
@@ -46,6 +61,18 @@ const NewRecord = () => {
 
     if (Number.isNaN(allergyCode) || Number.isNaN(riskScore)) {
       toast.error(language === 'id' ? 'Nilai kode alergi dan skor risiko tidak valid' : 'Invalid allergy code or risk score');
+      return;
+    }
+
+    const isValidU16 = (value: number) =>
+      Number.isInteger(value) && value >= MIN_U16 && value <= MAX_U16;
+
+    if (!isValidU16(allergyCode) || !isValidU16(riskScore)) {
+      toast.error(
+        language === 'id'
+          ? 'Nilai harus bilangan bulat antara 0 dan 65535'
+          : 'Values must be whole numbers between 0 and 65535'
+      );
       return;
     }
 
@@ -205,25 +232,51 @@ const NewRecord = () => {
                       <Label htmlFor="allergyCode">
                         {language === 'id' ? 'Kode Alergi (u16)' : 'Allergy Code (u16)'}
                       </Label>
-                      <Input
-                        id="allergyCode"
-                        type="number"
-                        value={formData.allergyCode}
-                        onChange={(e) => setFormData({ ...formData, allergyCode: e.target.value })}
-                        placeholder="0"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="allergyCode"
+                          type="number"
+                          min={MIN_U16}
+                          max={MAX_U16}
+                          value={formData.allergyCode}
+                          onChange={(e) => setFormData({ ...formData, allergyCode: e.target.value })}
+                          placeholder="0"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => handleRandomize("allergyCode")}
+                          className="shrink-0"
+                        >
+                          {language === "id" ? "Acak" : "Random"}
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="riskScore">
                         {language === 'id' ? 'Skor Risiko (u16)' : 'Risk Score (u16)'}
                       </Label>
-                      <Input
-                        id="riskScore"
-                        type="number"
-                        value={formData.riskScore}
-                        onChange={(e) => setFormData({ ...formData, riskScore: e.target.value })}
-                        placeholder="0"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="riskScore"
+                          type="number"
+                          min={MIN_U16}
+                          max={MAX_U16}
+                          value={formData.riskScore}
+                          onChange={(e) => setFormData({ ...formData, riskScore: e.target.value })}
+                          placeholder="0"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => handleRandomize("riskScore")}
+                          className="shrink-0"
+                        >
+                          {language === "id" ? "Acak" : "Random"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 

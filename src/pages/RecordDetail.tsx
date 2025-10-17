@@ -29,7 +29,6 @@ const RecordDetail = () => {
   const hvAddDelta = useHVAddDelta();
   const hvDecrypt = useHVDecrypt();
   const [doctorAddress, setDoctorAddress] = useState('');
-  const [contractRecordId, setContractRecordId] = useState('');
   const [riskDelta, setRiskDelta] = useState('');
 
   const ensureConnection = () => {
@@ -65,17 +64,17 @@ const RecordDetail = () => {
 
   const handleRiskDelta = async () => {
     if (!ensureConnection()) return;
-    let recordKey: bigint | null = null;
-    try {
-      recordKey = contractRecordId ? BigInt(contractRecordId) : null;
-    } catch (error) {
-      console.error('Invalid record id', error);
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
+    if (!record?.contractId) {
+      toast.error(language === 'id' ? 'Rekam medis belum memiliki ID kontrak' : 'Record has no contract id yet');
       return;
     }
 
-    if (!recordKey) {
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
+    let recordKey: bigint;
+    try {
+      recordKey = BigInt(record.contractId);
+    } catch (error) {
+      console.error('Invalid record id', error);
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
       return;
     }
 
@@ -100,17 +99,17 @@ const RecordDetail = () => {
 
   const handleDecrypt = async () => {
     if (!ensureConnection()) return;
-    let recordKey: bigint | null = null;
-    try {
-      recordKey = contractRecordId ? BigInt(contractRecordId) : null;
-    } catch (error) {
-      console.error('Invalid record id', error);
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
+    if (!record?.contractId) {
+      toast.error(language === 'id' ? 'Rekam medis belum memiliki ID kontrak' : 'Record has no contract id yet');
       return;
     }
 
-    if (!recordKey) {
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
+    let recordKey: bigint;
+    try {
+      recordKey = BigInt(record.contractId);
+    } catch (error) {
+      console.error('Invalid record id', error);
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
       return;
     }
 
@@ -343,13 +342,13 @@ const RecordDetail = () => {
                     <Label htmlFor="contractRecordId">
                       {language === 'id' ? 'ID Rekam Medis (kontrak)' : 'Contract Record ID'}
                     </Label>
-                    <Input
-                      id="contractRecordId"
-                      type="number"
-                      value={contractRecordId}
-                      onChange={(e) => setContractRecordId(e.target.value)}
-                      placeholder="1"
-                    />
+                    <code className="block text-sm bg-muted p-3 rounded" id="contractRecordId">
+                      {record.contractId != null
+                        ? `#${record.contractId}`
+                        : language === 'id'
+                          ? 'Belum tersedia'
+                          : 'Not available'}
+                    </code>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="riskDelta">

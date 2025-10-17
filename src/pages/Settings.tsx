@@ -1,6 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -22,30 +34,36 @@ const Settings = () => {
             {/* Header */}
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                {t('settings.title', language)}
+                {t("settings.title", language)}
               </h1>
               <p className="text-muted-foreground">
-                {language === 'id'
-                  ? 'Kelola preferensi aplikasi Anda'
-                  : 'Manage your application preferences'}
+                {language === "id"
+                  ? "Kelola preferensi aplikasi Anda"
+                  : "Manage your application preferences"}
               </p>
             </div>
 
             {/* Profile */}
             <Card>
               <CardHeader>
-                <CardTitle>{t('settings.profile', language)}</CardTitle>
+                <CardTitle>{t("settings.profile", language)}</CardTitle>
                 <CardDescription>
-                  {language === 'id'
-                    ? 'Informasi akun Anda'
-                    : 'Your account information'}
+                  {language === "id"
+                    ? "Informasi akun Anda"
+                    : "Your account information"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Label>{language === 'id' ? 'Alamat Wallet' : 'Wallet Address'}</Label>
+                  <Label>
+                    {language === "id" ? "Alamat Wallet" : "Wallet Address"}
+                  </Label>
                   <code className="block text-sm bg-muted p-3 rounded">
-                    {address || language === 'id' ? 'Tidak terhubung' : 'Not connected'}
+                    {address
+                      ? address
+                      : language === "id"
+                        ? "Tidak terhubung"
+                        : "Not connected"}
                   </code>
                 </div>
               </CardContent>
@@ -54,33 +72,44 @@ const Settings = () => {
             {/* Appearance */}
             <Card>
               <CardHeader>
-                <CardTitle>{language === 'id' ? 'Tampilan' : 'Appearance'}</CardTitle>
+                <CardTitle>
+                  {language === "id" ? "Tampilan" : "Appearance"}
+                </CardTitle>
                 <CardDescription>
-                  {language === 'id'
-                    ? 'Atur tema dan bahasa aplikasi'
-                    : 'Customize the app theme and language'}
+                  {language === "id"
+                    ? "Atur tema dan bahasa aplikasi"
+                    : "Customize the app theme and language"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Theme */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="theme">{t('settings.theme', language)}</Label>
+                    <Label htmlFor="theme">
+                      {t("settings.theme", language)}
+                    </Label>
                     <p className="text-sm text-muted-foreground">
-                      {theme === 'light' ? t('settings.light', language) : t('settings.dark', language)}
+                      {theme === "light"
+                        ? t("settings.light", language)
+                        : t("settings.dark", language)}
                     </p>
                   </div>
                   <Switch
                     id="theme"
-                    checked={theme === 'dark'}
+                    checked={theme === "dark"}
                     onCheckedChange={toggleTheme}
                   />
                 </div>
 
                 {/* Language */}
                 <div className="space-y-2">
-                  <Label htmlFor="language">{t('settings.language', language)}</Label>
-                  <Select value={language} onValueChange={(value: 'id' | 'en') => setLanguage(value)}>
+                  <Label htmlFor="language">
+                    {t("settings.language", language)}
+                  </Label>
+                  <Select
+                    value={language}
+                    onValueChange={(value: "id" | "en") => setLanguage(value)}
+                  >
                     <SelectTrigger id="language">
                       <SelectValue />
                     </SelectTrigger>
@@ -96,18 +125,13 @@ const Settings = () => {
             {/* About */}
             <Card>
               <CardHeader>
-                <CardTitle>{language === 'id' ? 'Tentang' : 'About'}</CardTitle>
+                <CardTitle>{language === "id" ? "Tentang" : "About"}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {language === 'id'
-                    ? 'Confidential Health Record dApp adalah aplikasi demo untuk manajemen rekam medis terenkripsi menggunakan teknologi FHEVM (Fully Homomorphic Encryption Virtual Machine).'
-                    : 'Confidential Health Record dApp is a demo application for encrypted health record management using FHEVM (Fully Homomorphic Encryption Virtual Machine) technology.'}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'id'
-                    ? '⚠️ Ini adalah aplikasi demo dengan enkripsi placeholder. Untuk produksi, gunakan implementasi FHE sesungguhnya dengan Zama FHEVM SDK.'
-                    : '⚠️ This is a demo app with placeholder encryption. For production, use actual FHE implementation with Zama FHEVM SDK.'}
+                  {language === "id"
+                    ? "Confidential Health Record dApp adalah aplikasi demo untuk manajemen rekam medis terenkripsi menggunakan teknologi FHEVM (Fully Homomorphic Encryption Virtual Machine)."
+                    : "Confidential Health Record dApp is a demo application for encrypted health record management using FHEVM (Fully Homomorphic Encryption Virtual Machine) technology."}
                 </p>
               </CardContent>
             </Card>

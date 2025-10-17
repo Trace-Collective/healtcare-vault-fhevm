@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
 import {
   hvCreateRecordFromExternal,
   hvGrantAccess,
@@ -6,8 +7,13 @@ import {
   hvRequestRiskDecrypt,
 } from '@/services/healthVault';
 
-export const useHVCreate = () =>
-  useMutation({
+export const useHVCreate = () => {
+  const { address } = useAccount();
+  const getAccount = () => {
+    if (!address) throw new Error('Wallet not connected');
+    return address as `0x${string}`;
+  };
+  return useMutation({
     mutationFn: ({
       cid,
       allergy,
@@ -16,32 +22,51 @@ export const useHVCreate = () =>
       cid: string;
       allergy: number;
       risk: number;
-    }) => hvCreateRecordFromExternal(cid, allergy, risk),
+    }) => hvCreateRecordFromExternal(cid, allergy, risk, getAccount()),
   });
+};
 
-export const useHVGrant = () =>
-  useMutation({
+export const useHVGrant = () => {
+  const { address } = useAccount();
+  const getAccount = () => {
+    if (!address) throw new Error('Wallet not connected');
+    return address as `0x${string}`;
+  };
+  return useMutation({
     mutationFn: ({
       doctor,
       isGranted,
     }: {
       doctor: `0x${string}`;
       isGranted: boolean;
-    }) => hvGrantAccess(doctor, isGranted),
+    }) => hvGrantAccess(doctor, isGranted, getAccount()),
   });
+};
 
-export const useHVAddDelta = () =>
-  useMutation({
+export const useHVAddDelta = () => {
+  const { address } = useAccount();
+  const getAccount = () => {
+    if (!address) throw new Error('Wallet not connected');
+    return address as `0x${string}`;
+  };
+  return useMutation({
     mutationFn: ({
       id,
       delta,
     }: {
       id: bigint;
       delta: number;
-    }) => hvAddRiskDelta(id, delta),
+    }) => hvAddRiskDelta(id, delta, getAccount()),
   });
+};
 
-export const useHVDecrypt = () =>
-  useMutation({
-    mutationFn: ({ id }: { id: bigint }) => hvRequestRiskDecrypt(id),
+export const useHVDecrypt = () => {
+  const { address } = useAccount();
+  const getAccount = () => {
+    if (!address) throw new Error('Wallet not connected');
+    return address as `0x${string}`;
+  };
+  return useMutation({
+    mutationFn: ({ id }: { id: bigint }) => hvRequestRiskDecrypt(id, getAccount()),
   });
+};

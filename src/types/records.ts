@@ -2,6 +2,7 @@ export type EncryptedBlob = string; // base64/hex ciphertext
 
 export type HealthRecord = {
   id: string;
+  contractId?: number;
   owner: string; // patient wallet
   grantedTo?: string[]; // doctors with access
   createdAt: string; // ISO

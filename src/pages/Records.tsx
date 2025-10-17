@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,13 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { RecordCard } from "@/components/records/RecordCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
@@ -27,8 +34,17 @@ const Records = () => {
   const hvDecrypt = useHVDecrypt();
 
   const [doctorAddress, setDoctorAddress] = useState('');
-  const [recordId, setRecordId] = useState('');
+  const [selectedContractId, setSelectedContractId] = useState('');
   const [riskDelta, setRiskDelta] = useState('');
+
+  useEffect(() => {
+    if (!selectedContractId && records?.length) {
+      const firstWithId = records.find((record) => record.contractId != null);
+      if (firstWithId?.contractId != null) {
+        setSelectedContractId(firstWithId.contractId.toString());
+      }
+    }
+  }, [records, selectedContractId]);
 
   const ensureConnection = () => {
     if (!isConnected || !address) {
@@ -63,20 +79,20 @@ const Records = () => {
 
   const handleRiskDelta = async () => {
     if (!ensureConnection()) return;
-    let id: bigint | null = null;
+    if (!selectedContractId) {
+      toast.error(language === 'id' ? 'Pilih rekam medis terlebih dahulu' : 'Select a record first');
+      return;
+    }
+
+    let id: bigint;
     try {
-      id = recordId ? BigInt(recordId) : null;
+      id = BigInt(selectedContractId);
     } catch (error) {
       console.error('Invalid record id', error);
       toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
       return;
     }
     const delta = Number(riskDelta || 0);
-
-    if (!id) {
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
-      return;
-    }
 
     if (Number.isNaN(delta)) {
       toast.error(language === 'id' ? 'Delta risiko tidak valid' : 'Invalid risk delta');
@@ -98,17 +114,17 @@ const Records = () => {
 
   const handleDecrypt = async () => {
     if (!ensureConnection()) return;
-    let id: bigint | null = null;
-    try {
-      id = recordId ? BigInt(recordId) : null;
-    } catch (error) {
-      console.error('Invalid record id', error);
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
+    if (!selectedContractId) {
+      toast.error(language === 'id' ? 'Pilih rekam medis terlebih dahulu' : 'Select a record first');
       return;
     }
 
-    if (!id) {
-      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
+    let id: bigint;
+    try {
+      id = BigInt(selectedContractId);
+    } catch (error) {
+      console.error('Invalid record id', error);
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
       return;
     }
 
@@ -190,15 +206,32 @@ const Records = () => {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="recordId">
-                      {language === 'id' ? 'ID Rekam Medis' : 'Record ID'}
+                      {language === 'id' ? 'Rekam Medis' : 'Record'}
                     </Label>
-                    <Input
-                      id="recordId"
-                      type="number"
-                      value={recordId}
-                      onChange={(e) => setRecordId(e.target.value)}
-                      placeholder="1"
-                    />
+                    <Select
+                      value={selectedContractId}
+                      onValueChange={setSelectedContractId}
+                      disabled={!records?.length}
+                    >
+                      <SelectTrigger id="recordId">
+                        <SelectValue
+                          placeholder={language === 'id' ? 'Pilih rekam medis' : 'Select a record'}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {records?.map((record) => (
+                          <SelectItem
+                            key={record.id}
+                            value={record.contractId?.toString() ?? ''}
+                            disabled={record.contractId == null}
+                          >
+                            {record.contractId != null
+                              ? `#${record.contractId} • ${record.id}`
+                              : record.id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="riskDelta">
