@@ -10,6 +10,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useUIStore } from "@/store/uiStore";
 import { useCreateRecord } from "@/hooks/useRecords";
+import { useHVCreate } from "@/hooks/useHealthVaultDemo";
 import { encryptData } from "@/services/fhe";
 import { t } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -20,16 +21,50 @@ const NewRecord = () => {
   const { address, isConnected } = useAccount();
   const { language } = useUIStore();
   const createRecord = useCreateRecord();
+  const hvCreate = useHVCreate();
 
   const [formData, setFormData] = useState({
     complaint: '',
     diagnosis: '',
     medications: '',
     allergy: '',
-    note: ''
+    note: '',
+    allergyCode: '',
+    riskScore: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleOnChainSubmit = async () => {
+    if (!isConnected || !address) {
+      toast.error(language === 'id' ? 'Hubungkan wallet terlebih dahulu' : 'Please connect wallet first');
+      return;
+    }
+
+    const allergyCode = Number(formData.allergyCode || 0);
+    const riskScore = Number(formData.riskScore || 0);
+
+    if (Number.isNaN(allergyCode) || Number.isNaN(riskScore)) {
+      toast.error(language === 'id' ? 'Nilai kode alergi dan skor risiko tidak valid' : 'Invalid allergy code or risk score');
+      return;
+    }
+
+    try {
+      const hash = await hvCreate.mutateAsync({
+        cid: `demo-cid-${Date.now()}`,
+        allergy: allergyCode,
+        risk: riskScore,
+      });
+      toast.success(
+        language === 'id'
+          ? `Transaksi dikirim: ${hash}`
+          : `Transaction submitted: ${hash}`
+      );
+    } catch (error) {
+      console.error('Error sending on-chain tx:', error);
+      toast.error(language === 'id' ? 'Gagal mengirim transaksi' : 'Failed to send transaction');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,6 +200,33 @@ const NewRecord = () => {
                     />
                   </div>
 
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="allergyCode">
+                        {language === 'id' ? 'Kode Alergi (u16)' : 'Allergy Code (u16)'}
+                      </Label>
+                      <Input
+                        id="allergyCode"
+                        type="number"
+                        value={formData.allergyCode}
+                        onChange={(e) => setFormData({ ...formData, allergyCode: e.target.value })}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="riskScore">
+                        {language === 'id' ? 'Skor Risiko (u16)' : 'Risk Score (u16)'}
+                      </Label>
+                      <Input
+                        id="riskScore"
+                        type="number"
+                        value={formData.riskScore}
+                        onChange={(e) => setFormData({ ...formData, riskScore: e.target.value })}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="note">
                       {t('records.note', language)}
@@ -178,7 +240,7 @@ const NewRecord = () => {
                     />
                   </div>
 
-                  <div className="flex gap-4">
+                  <div className="flex flex-col gap-4 sm:flex-row">
                     <Button
                       type="button"
                       variant="outline"
@@ -193,6 +255,20 @@ const NewRecord = () => {
                       className="flex-1"
                     >
                       {isSubmitting ? t('common.loading', language) : t('common.save', language)}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={hvCreate.isPending}
+                      onClick={handleOnChainSubmit}
+                      className="flex-1"
+                    >
+                      {hvCreate.isPending
+                        ? language === 'id'
+                          ? 'Mengirim...' : 'Submitting...'
+                        : language === 'id'
+                          ? 'Kirim ke FHEVM'
+                          : 'Submit to FHEVM'}
                     </Button>
                   </div>
                 </CardContent>

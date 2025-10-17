@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,15 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useUIStore } from "@/store/uiStore";
 import { useMyRecords } from "@/hooks/useRecords";
+import { useHVGrant, useHVAddDelta, useHVDecrypt } from "@/hooks/useHealthVaultDemo";
 import { t } from "@/lib/i18n";
 import { Loading } from "@/components/common/Loading";
 import { EmptyState } from "@/components/common/EmptyState";
 import { RecordCard } from "@/components/records/RecordCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { useAccount } from "wagmi";
 
 const Records = () => {
@@ -16,6 +22,108 @@ const Records = () => {
   const { address, isConnected } = useAccount();
   const { language } = useUIStore();
   const { data: records, isLoading } = useMyRecords(address);
+  const hvGrant = useHVGrant();
+  const hvAddDelta = useHVAddDelta();
+  const hvDecrypt = useHVDecrypt();
+
+  const [doctorAddress, setDoctorAddress] = useState('');
+  const [recordId, setRecordId] = useState('');
+  const [riskDelta, setRiskDelta] = useState('');
+
+  const ensureConnection = () => {
+    if (!isConnected || !address) {
+      toast.error(language === 'id' ? 'Hubungkan wallet terlebih dahulu' : 'Please connect wallet first');
+      return false;
+    }
+    return true;
+  };
+
+  const handleGrant = async (grant: boolean) => {
+    if (!ensureConnection()) return;
+    if (!doctorAddress) {
+      toast.error(language === 'id' ? 'Alamat dokter wajib diisi' : 'Doctor address is required');
+      return;
+    }
+
+    try {
+      const hash = await hvGrant.mutateAsync({
+        doctor: doctorAddress as `0x${string}`,
+        isGranted: grant,
+      });
+      toast.success(
+        language === 'id'
+          ? `Transaksi dikirim: ${hash}`
+          : `Transaction submitted: ${hash}`
+      );
+    } catch (error) {
+      console.error('Grant access failed', error);
+      toast.error(language === 'id' ? 'Gagal mengirim transaksi' : 'Failed to send transaction');
+    }
+  };
+
+  const handleRiskDelta = async () => {
+    if (!ensureConnection()) return;
+    let id: bigint | null = null;
+    try {
+      id = recordId ? BigInt(recordId) : null;
+    } catch (error) {
+      console.error('Invalid record id', error);
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
+      return;
+    }
+    const delta = Number(riskDelta || 0);
+
+    if (!id) {
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
+      return;
+    }
+
+    if (Number.isNaN(delta)) {
+      toast.error(language === 'id' ? 'Delta risiko tidak valid' : 'Invalid risk delta');
+      return;
+    }
+
+    try {
+      const hash = await hvAddDelta.mutateAsync({ id, delta });
+      toast.success(
+        language === 'id'
+          ? `Transaksi dikirim: ${hash}`
+          : `Transaction submitted: ${hash}`
+      );
+    } catch (error) {
+      console.error('Add risk delta failed', error);
+      toast.error(language === 'id' ? 'Gagal mengirim transaksi' : 'Failed to send transaction');
+    }
+  };
+
+  const handleDecrypt = async () => {
+    if (!ensureConnection()) return;
+    let id: bigint | null = null;
+    try {
+      id = recordId ? BigInt(recordId) : null;
+    } catch (error) {
+      console.error('Invalid record id', error);
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is invalid');
+      return;
+    }
+
+    if (!id) {
+      toast.error(language === 'id' ? 'ID rekam medis tidak valid' : 'Record id is required');
+      return;
+    }
+
+    try {
+      const hash = await hvDecrypt.mutateAsync({ id });
+      toast.success(
+        language === 'id'
+          ? `Permintaan dikirim: ${hash}`
+          : `Request submitted: ${hash}`
+      );
+    } catch (error) {
+      console.error('Decrypt request failed', error);
+      toast.error(language === 'id' ? 'Gagal mengirim transaksi' : 'Failed to send transaction');
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -41,6 +149,95 @@ const Records = () => {
                 {t('records.newRecord', language)}
               </Button>
             </div>
+
+            {/* On-chain demo controls */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{language === 'id' ? 'Demo Interaksi FHEVM' : 'FHEVM Demo Actions'}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-6 md:grid-cols-3">
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="doctorAddress">
+                      {language === 'id' ? 'Alamat Dokter' : 'Doctor Address'}
+                    </Label>
+                    <Input
+                      id="doctorAddress"
+                      value={doctorAddress}
+                      onChange={(e) => setDoctorAddress(e.target.value)}
+                      placeholder="0x..."
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleGrant(true)}
+                      disabled={hvGrant.isPending}
+                    >
+                      {language === 'id' ? 'Berikan Akses' : 'Grant Access'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleGrant(false)}
+                      disabled={hvGrant.isPending}
+                    >
+                      {language === 'id' ? 'Cabut Akses' : 'Revoke Access'}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="recordId">
+                      {language === 'id' ? 'ID Rekam Medis' : 'Record ID'}
+                    </Label>
+                    <Input
+                      id="recordId"
+                      type="number"
+                      value={recordId}
+                      onChange={(e) => setRecordId(e.target.value)}
+                      placeholder="1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="riskDelta">
+                      {language === 'id' ? 'Delta Risiko (u16)' : 'Risk Delta (u16)'}
+                    </Label>
+                    <Input
+                      id="riskDelta"
+                      type="number"
+                      value={riskDelta}
+                      onChange={(e) => setRiskDelta(e.target.value)}
+                      placeholder="1"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={handleRiskDelta}
+                    disabled={hvAddDelta.isPending}
+                  >
+                    {language === 'id' ? 'Tambah Δ Risiko' : 'Add Risk Δ'}
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'id'
+                      ? 'Gunakan tombol berikut untuk meminta dekripsi skor risiko.'
+                      : 'Use the button below to request a risk score decryption.'}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleDecrypt}
+                    disabled={hvDecrypt.isPending}
+                  >
+                    {language === 'id' ? 'Minta Dekripsi' : 'Request Decrypt'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Content */}
             {!isConnected ? (
