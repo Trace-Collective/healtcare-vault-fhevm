@@ -49,7 +49,6 @@ const RecordDetail = () => {
 
     try {
       const hash = await hvGrant.mutateAsync({
-        account: address as `0x${string}`,
         doctor: doctorAddress as `0x${string}`,
         isGranted: grant,
       });
@@ -87,11 +86,7 @@ const RecordDetail = () => {
     }
 
     try {
-      const hash = await hvAddDelta.mutateAsync({
-        account: address as `0x${string}`,
-        id: recordKey,
-        delta,
-      });
+      const hash = await hvAddDelta.mutateAsync({ id: recordKey, delta });
       toast.success(
         language === 'id'
           ? `Transaksi dikirim: ${hash}`
@@ -120,10 +115,7 @@ const RecordDetail = () => {
     }
 
     try {
-      const hash = await hvDecrypt.mutateAsync({
-        account: address as `0x${string}`,
-        id: recordKey,
-      });
+      const hash = await hvDecrypt.mutateAsync({ id: recordKey });
       toast.success(
         language === 'id'
           ? `Permintaan dikirim: ${hash}`

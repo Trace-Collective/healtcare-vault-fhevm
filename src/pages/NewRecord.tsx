@@ -51,7 +51,6 @@ const NewRecord = () => {
 
     try {
       const hash = await hvCreate.mutateAsync({
-        account: address as `0x${string}`,
         cid: `demo-cid-${Date.now()}`,
         allergy: allergyCode,
         risk: riskScore,
