@@ -1,5 +1,5 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { mainnet, polygon, polygonAmoy, sepolia } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "00000000000000000000000000000000";
 
@@ -13,6 +13,6 @@ if (!import.meta.env.VITE_WALLETCONNECT_PROJECT_ID) {
 export const wagmiConfig = getDefaultConfig({
   appName: "Healthcare Vault dApp",
   projectId,
-  chains: [mainnet, sepolia, polygon, polygonAmoy],
+  chains: [sepolia],
   ssr: false,
 });

@@ -49,8 +49,8 @@ export async function hvAddRiskDelta(
   return writeContract(wagmiConfig, {
     address: HEALTH_VAULT.address,
     abi: HEALTH_VAULT.abi,
-    functionName: 'addRiskDelta',
-    args: [id, d.external],
+    functionName: 'addRiskDeltaFromExternal',
+    args: [id, d.external, d.proof],
     account,
   });
 }

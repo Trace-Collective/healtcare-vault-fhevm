@@ -17,12 +17,14 @@ import { Loading } from "@/components/common/Loading";
 import { DecryptedHealthRecord } from "@/types/records";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
+import { grantAccess as grantAccessLocal, revokeAccess as revokeAccessLocal } from "@/services/contract";
 
 const RecordDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language } = useUIStore();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, connector } = useAccount();
   const { data: record, isLoading } = useRecord(id);
   const [decryptedData, setDecryptedData] = useState<DecryptedHealthRecord | null>(null);
   const hvGrant = useHVGrant();
@@ -30,6 +32,7 @@ const RecordDetail = () => {
   const hvDecrypt = useHVDecrypt();
   const [doctorAddress, setDoctorAddress] = useState('');
   const [riskDelta, setRiskDelta] = useState('');
+  const queryClient = useQueryClient();
 
   const ensureConnection = () => {
     if (!isConnected || !address) {
@@ -39,10 +42,40 @@ const RecordDetail = () => {
     return true;
   };
 
+  const syncLocalAccess = async (grant: boolean) => {
+    if (!address || !doctorAddress) return;
+    try {
+      if (grant) {
+        await grantAccessLocal(address, doctorAddress);
+      } else {
+        await revokeAccessLocal(address, doctorAddress);
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['records'] }),
+        queryClient.invalidateQueries({ queryKey: ['records', address] }),
+        id ? queryClient.invalidateQueries({ queryKey: ['record', id] }) : Promise.resolve(),
+      ]);
+    } catch (error) {
+      console.error('Failed syncing local access state', error);
+    }
+  };
+
   const handleGrant = async (grant: boolean) => {
     if (!ensureConnection()) return;
     if (!doctorAddress) {
       toast.error(language === 'id' ? 'Alamat dokter wajib diisi' : 'Doctor address is required');
+      return;
+    }
+
+    const canWriteOnChain = typeof connector?.getChainId === 'function';
+    if (!canWriteOnChain) {
+      await syncLocalAccess(grant);
+      setDoctorAddress('');
+      toast.success(
+        language === 'id'
+          ? 'Akses diperbarui dalam mode demo'
+          : 'Access updated in demo mode'
+      );
       return;
     }
 
@@ -51,6 +84,8 @@ const RecordDetail = () => {
         doctor: doctorAddress as `0x${string}`,
         isGranted: grant,
       });
+      await syncLocalAccess(grant);
+      setDoctorAddress('');
       toast.success(
         language === 'id'
           ? `Transaksi dikirim: ${hash}`

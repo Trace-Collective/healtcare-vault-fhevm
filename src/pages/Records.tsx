@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useUIStore } from "@/store/uiStore";
 import { useMyRecords } from "@/hooks/useRecords";
-import { useHVGrant, useHVAddDelta, useHVDecrypt } from "@/hooks/useHealthVaultDemo";
+import { useHVGrant, useHVAddDelta, useHVDecrypt, useWatchRiskDecrypted } from "@/hooks/useHealthVaultDemo";
 import { t } from "@/lib/i18n";
 import { Loading } from "@/components/common/Loading";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -23,15 +23,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
+import { grantAccess as grantAccessLocal, revokeAccess as revokeAccessLocal } from "@/services/contract";
 
 const Records = () => {
   const navigate = useNavigate();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, connector } = useAccount();
   const { language } = useUIStore();
   const { data: records, isLoading } = useMyRecords(address);
   const hvGrant = useHVGrant();
   const hvAddDelta = useHVAddDelta();
   const hvDecrypt = useHVDecrypt();
+  useWatchRiskDecrypted();
+  const queryClient = useQueryClient();
 
   const [doctorAddress, setDoctorAddress] = useState('');
   const [selectedContractId, setSelectedContractId] = useState('');
@@ -46,12 +50,40 @@ const Records = () => {
     }
   }, [records, selectedContractId]);
 
+  const grantedAddresses = useMemo(() => {
+    if (!records || records.length === 0) return [];
+    const unique = new Set<string>();
+    records.forEach((record) => {
+      record.grantedTo?.forEach((addr) => {
+        if (addr) unique.add(addr);
+      });
+    });
+    return Array.from(unique);
+  }, [records]);
+
   const ensureConnection = () => {
     if (!isConnected || !address) {
       toast.error(language === 'id' ? 'Hubungkan wallet terlebih dahulu' : 'Please connect wallet first');
       return false;
     }
     return true;
+  };
+
+  const syncLocalAccess = async (grant: boolean) => {
+    if (!address || !doctorAddress) return;
+    try {
+      if (grant) {
+        await grantAccessLocal(address, doctorAddress);
+      } else {
+        await revokeAccessLocal(address, doctorAddress);
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['records'] }),
+        queryClient.invalidateQueries({ queryKey: ['records', address] }),
+      ]);
+    } catch (syncError) {
+      console.error('Failed syncing local access state', syncError);
+    }
   };
 
   const handleGrant = async (grant: boolean) => {
@@ -61,11 +93,25 @@ const Records = () => {
       return;
     }
 
+    const canWriteOnChain = typeof connector?.getChainId === 'function';
+    if (!canWriteOnChain) {
+      await syncLocalAccess(grant);
+      setDoctorAddress('');
+      toast.success(
+        language === 'id'
+          ? 'Akses diperbarui dalam mode demo'
+          : 'Access updated in demo mode'
+      );
+      return;
+    }
+
     try {
       const hash = await hvGrant.mutateAsync({
         doctor: doctorAddress as `0x${string}`,
         isGranted: grant,
       });
+      await syncLocalAccess(grant);
+      setDoctorAddress('');
       toast.success(
         language === 'id'
           ? `Transaksi dikirim: ${hash}`
@@ -200,6 +246,29 @@ const Records = () => {
                     >
                       {language === 'id' ? 'Cabut Akses' : 'Revoke Access'}
                     </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>
+                      {language === 'id' ? 'Akses Saat Ini' : 'Current Access'}
+                    </Label>
+                    {grantedAddresses.length > 0 ? (
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {grantedAddresses.map((addr) => (
+                          <code
+                            key={addr}
+                            className="block text-xs bg-muted px-2 py-1 rounded"
+                          >
+                            {addr}
+                          </code>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'id'
+                          ? 'Belum ada akses yang diberikan'
+                          : 'No wallets have been granted access yet'}
+                      </p>
+                    )}
                   </div>
                 </div>
 
